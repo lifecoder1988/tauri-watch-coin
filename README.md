@@ -1,7 +1,25 @@
-# Tauri + React + Typescript
+# original intention
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+watch one token price change on app menu bar .
 
-## Recommended IDE Setup
+avoid go to fanince app , because the BOSS is wacthing YOU.
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+btw , price is updated every 3 seconds !
+
+## How To Use ？ (JUST WATCH)
+
+[![](https://i.ytimg.com/vi/MpTIEvQGSZU/hqdefault.jpg)](https://www.youtube.com/watch?v=MpTIEvQGSZU)
+
+## Developer Getting Started
+
+download this project , run dev after install deps.
+
+follow tauri quickstart guide before run this project .
+
+```
+$ git clone https://github.com/lifecoder1988/tauri-watch-coin.git
+$ cd ./tauri-watch-coin
+$ yarn install
+$ yarn tauri dev
+
+```
