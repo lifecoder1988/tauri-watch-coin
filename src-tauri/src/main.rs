@@ -15,6 +15,8 @@ use tauri_plugin_store::{Store, StoreCollection};
 
 use std::thread;
 
+use tauri::api::path::data_dir;
+
 use std::fs;
 
 use std::path::Path;
@@ -32,6 +34,8 @@ use tokio::time::{self, Duration};
 
 use std::sync::{Arc, Mutex};
 use tauri::State;
+
+const BUNDLE_IDENTIFIER: &str = "com.moyu.kline";
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -112,16 +116,14 @@ async fn get_coin_price(pair: &str) -> Result<Ticker, Error> {
     Ok(ticker)
 }
 
-fn blend_color(background: Rgba<u8>, foreground: Rgba<u8>, alpha: u8) -> Rgba<u8> {
-    let alpha = alpha as f32 / 255.0;
-    let inv_alpha = 1.0 - alpha;
-    let blend_channel = |back, fore| ((back as f32) * inv_alpha + (fore as f32) * alpha) as u8;
-    Rgba([
-        blend_channel(background[0], foreground[0]),
-        blend_channel(background[1], foreground[1]),
-        blend_channel(background[2], foreground[2]),
-        255, // 假设背景总是不透明的
-    ])
+fn get_app_data_path() -> Option<PathBuf> {
+    if let Some(data_dir) = data_dir() {
+        // 使用你的应用的 Bundle Identifier
+        let app_data_path = data_dir.join(BUNDLE_IDENTIFIER);
+        Some(app_data_path)
+    } else {
+        None
+    }
 }
 
 fn generate_icon(pair: &str, text: &str, percent: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -207,7 +209,11 @@ fn generate_icon(pair: &str, text: &str, percent: &str) -> Result<(), Box<dyn st
         Ok(absolute_path) => println!("完整路径: {}", absolute_path.display()),
         Err(e) => println!("错误获取完整路径: {}", e),
     }*/
-    image.save(Path::new("../public/icon1.png")).unwrap();
+    if let Some(mut path) = get_app_data_path() {
+        path.push("icon1.png");
+        image.save(path.as_path()).unwrap();
+    }
+
     Ok(())
 }
 
@@ -242,7 +248,10 @@ async fn render(
         &format_percent(ticker.percent_change),
     );
 
-    let icon_path = "../public/icon1.png";
+    let mut path = get_app_data_path()
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::BrokenPipe, "13"))?;
+    path.push("icon1.png");
+    let icon_path = path.as_path();
     match fs::read(icon_path) {
         Ok(bytes) => {
             // 成功读取字节后的操作
