@@ -23,3 +23,24 @@ $ yarn install
 $ yarn tauri dev
 
 ```
+
+## OS Supported
+
+| OS      | Status             |
+| ------- | ------------------ |
+| Windows | UNKOWN             |
+| MacOS   | :white_check_mark: |
+
+## FAQ
+
+### 1. Can't open app after install
+
+because this app is not code signed by apple right now . you can run this command to skip this issue . (because lack of money)
+
+```
+sudo xattr -d com.apple.quarantine /Applications/watchcoin.app
+```
+
+### 2. Where to Download Release App
+
+// COMMING SOON
