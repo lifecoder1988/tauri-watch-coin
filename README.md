@@ -14,7 +14,7 @@ btw , price is updated every 3 seconds !
 
 download this project , run dev after install deps.
 
-follow tauri quickstart guide before run this project .
+follow [tauri quickstart guide](https://tauri.app/zh-cn/v1/guides/getting-started/prerequisites) before run this project .
 
 ### Dev
 
