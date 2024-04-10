@@ -1,3 +1,20 @@
+<p align="center">
+  <a href="https://nextui.org">
+      <img width="20%" src="https://raw.githubusercontent.com/lifecoder1988/tauri-watch-coin/main/src-tauri/icons/128x128%402x.png" alt="watch-coin" />
+      <h1 align="center">Tauri Watch Coin</h1>
+  </a>
+</p>
+</br>
+<p align="center">
+  <a href="https://github.com/lifecoder1988/tauri-watch-coin/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/lifecoder1988/tauri-watch-coin
+    " alt="License">
+  </a>
+
+</p>
+
+---
+
 # Original intention
 
 watch one token price change on app menu bar .
