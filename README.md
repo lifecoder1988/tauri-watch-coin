@@ -55,4 +55,6 @@ sudo xattr -d com.apple.quarantine /Applications/watchcoin.app
 
 ### 2. Where to Download Release App
 
-// COMMING SOON
+recently , you can download app for macos only . i am study hard to use github action to build app for other OS.
+
+[download app for mac M1 M2 M3 MXX ](https://github.com/lifecoder1988/tauri-watch-coin/blob/main/pkg/watchcoin_0.0.1_aarch64.dmg)
