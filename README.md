@@ -7,8 +7,7 @@
 </br>
 <p align="center">
   <a href="https://github.com/lifecoder1988/tauri-watch-coin/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/lifecoder1988/tauri-watch-coin
-    " alt="License">
+    <img src="https://img.shields.io/github/license/lifecoder1988/tauri-watch-coin" alt="License">
   </a>
 
 </p>
