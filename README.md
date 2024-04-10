@@ -2,7 +2,7 @@
 
 watch one token price change on app menu bar .
 
-avoid go to fanince app , because the BOSS is wacthing YOU.
+avoid go to fanince app , because the BOSS is watching YOU.
 
 btw , price is updated every 3 seconds !
 
