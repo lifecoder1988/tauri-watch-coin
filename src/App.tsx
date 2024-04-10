@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 import { invoke } from "@tauri-apps/api/tauri";
 
 import { appWindow } from "@tauri-apps/api/window";
 
-import { Select, SelectSection, SelectItem, Button } from "@nextui-org/react";
+import { Select, SelectItem, Button } from "@nextui-org/react";
 
-async function fetchSetting(key) {
+async function fetchSetting(key: string) {
   const value = await invoke("get_setting", { key });
   return value;
 }
 
-async function updateSetting(key, value) {
+async function updateSetting(key: string, value: string) {
   await invoke("set_setting", { key, value });
 }
 
-appWindow.listen("tauri://close-requested", async (event) => {
+appWindow.listen("tauri://close-requested", async (event: any) => {
   // 阻止窗口默认的关闭行为
   //event.preventDefault();
-
+  console.log(event);
   // 隐藏窗口
   await appWindow.hide();
 });
@@ -33,7 +33,7 @@ function App() {
     console.log("组件已挂载");
 
     const fetchData = async () => {
-      const response = await fetchSetting("pair");
+      const response = (await fetchSetting("pair")) as string;
       console.log(`fetchData ${response}`);
       setSelectedPair(response.toString());
     };
@@ -46,13 +46,14 @@ function App() {
   }, []); // 空依赖项数组表示这个 useEffect 只在首次渲染时运行
 
   // 处理下拉框选项改变的事件
-  const handlePairChange = (event) => {
+  const handlePairChange = (event: any) => {
+    console.log(event);
     console.log("handlePairChange");
     setSelectedPair(event.target.value);
   };
 
   // 处理表单提交的事件
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault(); // 阻止表单默认提交行为
     console.log(`你选择的交易对是: ${selectedPair}`);
     await updateSetting("pair", selectedPair);
