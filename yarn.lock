@@ -3102,7 +3102,7 @@ tailwindcss@*, tailwindcss@^3.4.3:
 
 "tauri-plugin-store-api@https://github.com/tauri-apps/tauri-plugin-store#v1":
   version "0.0.0"
-  resolved "git+ssh://git@github.com/tauri-apps/tauri-plugin-store.git#02243686d0507d2aeeb2924cd889dd0bcb47ecef"
+  resolved "https://github.com/tauri-apps/tauri-plugin-store#v1"
   dependencies:
     "@tauri-apps/api" "1.5.3"
 
