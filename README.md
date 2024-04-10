@@ -1,4 +1,4 @@
-# original intention
+# Original intention
 
 watch one token price change on app menu bar .
 
