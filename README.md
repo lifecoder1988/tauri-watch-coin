@@ -16,11 +16,23 @@ download this project , run dev after install deps.
 
 follow tauri quickstart guide before run this project .
 
+### Dev
+
 ```
 $ git clone https://github.com/lifecoder1988/tauri-watch-coin.git
 $ cd ./tauri-watch-coin
 $ yarn install
 $ yarn tauri dev
+
+```
+
+### Build
+
+```
+$ git clone https://github.com/lifecoder1988/tauri-watch-coin.git
+$ cd ./tauri-watch-coin
+$ yarn install
+$ yarn tauri build
 
 ```
 
