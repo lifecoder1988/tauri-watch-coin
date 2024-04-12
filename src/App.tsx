@@ -24,6 +24,22 @@ appWindow.listen("tauri://close-requested", async (event: any) => {
   await appWindow.hide();
 });
 
+interface UpdateIntervalProps {
+  label: string;
+  value: string;
+}
+
+const UpdateInterval: React.FC<UpdateIntervalProps> = ({ label, value }) => {
+  return (
+    <div className="flex flex-col justify-center p-4 max-w-full text-base leading-6 text-white bg-gray-900 w-[512px]">
+      <div className="flex gap-4 justify-between max-md:flex-wrap max-md:max-w-full">
+        <div>{label}</div>
+        <div>{value}</div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   // 组件状态，用于跟踪选中的交易对
   const [selectedPair, setSelectedPair] = useState("");
@@ -64,27 +80,64 @@ function App() {
     { label: "LTC/USDT", value: "LTC/USDT" },
     { label: "BOME/USDT", value: "BOME/USDT" },
   ];
+  const updateIntervals = [
+    { label: "Price updates", value: "Every 5 seconds" },
+    //{ label: "News updates", value: "Every 5 minutes" },
+  ];
   return (
-    <div className="flex w-full max-w-xs flex-col gap-2 m-4">
-      <Select
-        label="Watch Pair"
-        variant="bordered"
-        placeholder="Select  Pair"
-        selectedKeys={[selectedPair]}
-        className="max-w-xs"
-        onChange={handlePairChange}
-      >
-        {pairs.map((pair) => (
-          <SelectItem key={pair.value} value={pair.value}>
-            {pair.label}
-          </SelectItem>
-        ))}
-      </Select>
+    <div className="flex flex-col items-center px-5 pb-14 w-full bg-gray-900 max-md:max-w-full h-screen">
       {/*  <p className="text-small text-default-500">Selected: {selectedPair}</p> */}
 
-      <Button onClick={handleSubmit} color="primary">
-        Confirm
-      </Button>
+      <main>
+        <section className="flex flex-col mt-16 font-bold text-white whitespace-nowrap max-md:mt-10">
+          <h1 className="text-2xl tracking-tight">Settings</h1>
+          <h2 className="mt-7 text-lg tracking-tight">General</h2>
+        </section>
+
+        <div className="flex flex-col justify-center px-4 py-3.5 max-w-full text-base leading-6 text-white bg-gray-900 w-[512px]">
+          <Select
+            label="Watch Pair"
+            variant="bordered"
+            placeholder="Select Pair"
+            selectedKeys={[selectedPair]}
+            className="max-w-xs"
+            onChange={handlePairChange}
+          >
+            {pairs.map((pair) => (
+              <SelectItem key={pair.value} value={pair.value}>
+                {pair.label}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <section className="mt-4 text-lg font-bold tracking-tight text-white">
+          Update intervals
+        </section>
+        {updateIntervals.map((interval) => (
+          <UpdateInterval
+            key={interval.label}
+            label={interval.label}
+            value={interval.value}
+          />
+        ))}
+        <section className="mt-4 text-lg font-bold tracking-tight text-white">
+          Notifications
+        </section>
+
+        <UpdateInterval label="Price change threshold" value="2%" />
+        <section className="mt-4 text-lg font-bold tracking-tight text-white">
+          Privacy
+        </section>
+
+        <div className="flex flex-col mt-3 max-w-full text-sm font-bold tracking-wide leading-5 text-white w-[148px]">
+          <button className="flex flex-row justify-center px-4 py-2.5 mt-6 whitespace-nowrap bg-sky-700 rounded-3xl max-md:px-5">
+            <div className="justify-center bg-sky-700" onClick={handleSubmit}>
+              Save
+            </div>
+          </button>
+        </div>
+      </main>
     </div>
   );
 }
