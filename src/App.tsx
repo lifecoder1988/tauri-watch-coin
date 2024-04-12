@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 import { appWindow } from "@tauri-apps/api/window";
 
-import { Select, SelectItem, Button } from "@nextui-org/react";
+import { Select, SelectItem } from "@nextui-org/react";
 
 async function fetchSetting(key: string) {
   const value = await invoke("get_setting", { key });
