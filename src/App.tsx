@@ -48,7 +48,7 @@ function App() {
 
   const [selected, setSelected] = useState("crypto");
 
-  const [selectedPair2, setSelectedPair2] = useState("000001.SH");
+  const [selectedPair2, setSelectedPair2] = useState("");
 
   useEffect(() => {
     // 这里的代码会在组件首次渲染后执行
@@ -80,7 +80,7 @@ function App() {
   // 处理下拉框选项改变的事件
   const handlePairChange = (event: any) => {
     console.log(event);
-    console.log("handlePairChange");
+    console.log(`handlePairChange ${event.target.value}`);
     if (event.target.value == "") {
       return;
     }
@@ -98,7 +98,8 @@ function App() {
 
   // 处理表单提交的事件
   const handleSubmit = async (event: any) => {
-    event.preventDefault(); // 阻止表单默认提交行为
+    //event.preventDefault(); // 阻止表单默认提交行为
+
     console.log(`你选择的交易类型是: ${selected}`);
     console.log(`你选择的交易对是: ${selectedPair}  ${selectedPair2}`);
 
@@ -107,6 +108,7 @@ function App() {
       value: selected == "crypto" ? selectedPair : selectedPair2,
     };
     await updateSetting("config", JSON.stringify(data));
+    console.log("submit success");
   };
   const pairs = [
     { label: "BTC/USDT", value: "BTC/USDT" },
@@ -115,7 +117,12 @@ function App() {
     { label: "BOME/USDT", value: "BOME/USDT" },
   ];
 
-  const stocks = [{ label: "上证指数", value: "000001.SH" }];
+  //sh000300
+  const stocks = [
+    { label: "上证指数", value: "sh000001" },
+    { label: "沪深300", value: "sh000300" },
+    { label: "隆基绿能", value: "sh601012" },
+  ];
   const updateIntervals = [
     { label: "Price updates", value: "Every 5 seconds" },
     //{ label: "News updates", value: "Every 5 minutes" },
@@ -199,10 +206,11 @@ function App() {
         </section>
 
         <div className="flex flex-col mt-3 max-w-full text-sm font-bold tracking-wide leading-5 text-white w-[148px]">
-          <button className="flex flex-row justify-center px-4 py-2.5 mt-6 whitespace-nowrap bg-sky-700 rounded-3xl max-md:px-5">
-            <div className="justify-center bg-sky-700" onClick={handleSubmit}>
-              Save
-            </div>
+          <button
+            onClick={handleSubmit}
+            className="flex flex-row justify-center px-4 py-2.5 mt-6 whitespace-nowrap bg-sky-700 rounded-3xl max-md:px-5"
+          >
+            <div className="justify-center bg-sky-700">Save</div>
           </button>
         </div>
       </main>

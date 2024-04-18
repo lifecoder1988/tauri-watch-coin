@@ -36,6 +36,9 @@ use tokio::time::{self, Duration};
 use std::sync::{Arc, Mutex};
 use tauri::State;
 
+use reqwest::header::{HeaderMap, REFERER};
+use reqwest::Client;
+
 const BUNDLE_IDENTIFIER: &str = "com.moyu.kline";
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -74,10 +77,14 @@ struct Ticker {
 
 fn format_price2(pair: &str, price: f64) -> String {
     let mut name = "";
-    if pair == "000001.SH".to_string() {
+    if pair == "sh000001".to_string() {
         name = "上证指数";
+    } else if pair == "sh000300".to_string() {
+        name = "沪深300";
+    } else if pair == "sh601012".to_string() {
+        name = "隆基绿能";
     }
-    format!("{} {:>10}", name, format!("¥{}", price))
+    format!("{} {:>10}", name, format!("¥{:.2}", price))
 }
 
 fn format_price(pair: &str, price: f64) -> String {
@@ -126,23 +133,42 @@ async fn get_coin_price(pair: &str) -> Result<Ticker, Box<dyn std::error::Error>
 }
 
 async fn get_china_price(pair: &str) -> Result<Ticker, Box<dyn std::error::Error>> {
-    let url = format!(
+    /*let url = format!(
         "https://m.joudou.com/p/www/stockinfogate/indexqt/realtimeinfo?indexids={}",
         pair
-    );
+    );*/
 
-    println!("{}", url);
-    // 发送GET请求
-    let response = reqwest::get(url).await?;
+    let client = reqwest::Client::builder()
+        .build()?;
 
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert("Referer", "https://finance.sina.com.cn".parse()?);
+
+    let request = client.request(reqwest::Method::GET, format!("https://hq.sinajs.cn/list={}",pair))
+        .headers(headers);
+
+    let response = request.send().await?;
+    let data = response.text().await?;
+
+    let parts: Vec<_> = data.split("=").collect();
+    let s = parts[1].to_string() ;
+    let s2 = s.replace("\"", "");
+    let parts2: Vec<_> = s2.split(",").collect();
+    println!("{:?}",parts2);
+    let last : f64 = parts2[3].parse().unwrap() ;
+    let yestorday : f64 = parts2[2].parse().unwrap() ;
+    return Ok(Ticker {
+        last : last,
+        percent_change : (last - yestorday ) * 100.0 / yestorday 
+    });
     // 解析JSON响应
-    let v: Value = response.json().await?;
+    /*let v: Value = response.json().await?;
     if let Some(data_array) = v["data"].as_array() {
         return Ok(Ticker {
             last: data_array[0]["newprice"].as_f64().unwrap(),
             percent_change: data_array[0]["changeratio"].as_f64().unwrap(),
         });
-    }
+    }*/
 
     Err(Box::new(std::io::Error::new(
         std::io::ErrorKind::BrokenPipe,
