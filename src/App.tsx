@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Key } from "react";
 import "./App.css";
 
 import { invoke } from "@tauri-apps/api/tauri";
@@ -7,8 +7,7 @@ import { appWindow } from "@tauri-apps/api/window";
 
 import { Select, SelectItem } from "@nextui-org/react";
 
-import { Tabs, Tab, Card, CardBody, CardHeader } from "@nextui-org/react";
-import { event } from "@tauri-apps/api";
+import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
 
 async function fetchSetting(key: string) {
   const value = await invoke("get_setting", { key });
@@ -135,7 +134,7 @@ function App() {
           <Tabs
             aria-label="Options"
             selectedKey={selected}
-            onSelectionChange={setSelected}
+            onSelectionChange={(key: Key) => setSelected(key as string)}
           >
             <Tab key="crypto" title="Web3 Crypto">
               <Card>
