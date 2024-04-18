@@ -82,19 +82,26 @@ function App() {
   const handlePairChange = (event: any) => {
     console.log(event);
     console.log("handlePairChange");
+    if (event.target.value == "") {
+      return;
+    }
     setSelectedPair(event.target.value);
   };
 
   const handlePairChange2 = (event: any) => {
     console.log(event);
     console.log("handlePairChange2");
+    if (event.target.value == "") {
+      return;
+    }
     setSelectedPair2(event.target.value);
   };
 
   // 处理表单提交的事件
   const handleSubmit = async (event: any) => {
     event.preventDefault(); // 阻止表单默认提交行为
-    console.log(`你选择的交易对是: ${selectedPair}`);
+    console.log(`你选择的交易类型是: ${selected}`);
+    console.log(`你选择的交易对是: ${selectedPair}  ${selectedPair2}`);
 
     const data = {
       type: selected,
