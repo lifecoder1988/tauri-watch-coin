@@ -1,7 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use serde_json::to_string;
+use serde_json::{to_string, Value};
+
 use tauri::App;
 use tauri::{
     AppHandle, CustomMenuItem, Icon, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu,
@@ -22,7 +23,7 @@ use std::fs;
 use std::path::Path;
 
 use reqwest::Error;
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use std::path::PathBuf;
 
@@ -71,6 +72,14 @@ struct Ticker {
     percent_change: f64,
 }
 
+fn format_price2(pair: &str, price: f64) -> String {
+    let mut name = "";
+    if pair == "000001.SH".to_string() {
+        name = "上证指数";
+    }
+    format!("{} {:>10}", name, format!("¥{}", price))
+}
+
 fn format_price(pair: &str, price: f64) -> String {
     let parts: Vec<&str> = pair.split('/').collect();
 
@@ -99,7 +108,7 @@ fn is_negetive(percent: &str) -> bool {
         }
     }
 }
-async fn get_coin_price(pair: &str) -> Result<Ticker, Error> {
+async fn get_coin_price(pair: &str) -> Result<Ticker, Box<dyn std::error::Error>> {
     let lower_pair = pair.to_lowercase().replace("/", "_");
 
     let url = format!("https://api.gate.io/api2/1/ticker/{}", lower_pair);
@@ -116,6 +125,31 @@ async fn get_coin_price(pair: &str) -> Result<Ticker, Error> {
     Ok(ticker)
 }
 
+async fn get_china_price(pair: &str) -> Result<Ticker, Box<dyn std::error::Error>> {
+    let url = format!(
+        "https://m.joudou.com/p/www/stockinfogate/indexqt/realtimeinfo?indexids={}",
+        pair
+    );
+
+    println!("{}", url);
+    // 发送GET请求
+    let response = reqwest::get(url).await?;
+
+    // 解析JSON响应
+    let v: Value = response.json().await?;
+    if let Some(data_array) = v["data"].as_array() {
+        return Ok(Ticker {
+            last: data_array[0]["newprice"].as_f64().unwrap(),
+            percent_change: data_array[0]["changeratio"].as_f64().unwrap(),
+        });
+    }
+
+    Err(Box::new(std::io::Error::new(
+        std::io::ErrorKind::BrokenPipe,
+        "12",
+    )))
+}
+
 fn get_app_data_path() -> Option<PathBuf> {
     if let Some(data_dir) = data_dir() {
         // 使用你的应用的 Bundle Identifier
@@ -126,12 +160,17 @@ fn get_app_data_path() -> Option<PathBuf> {
     }
 }
 
-fn generate_icon(pair: &str, text: &str, percent: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn generate_icon(
+    market_type: &str,
+    pair: &str,
+    text: &str,
+    percent: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Create a new image buffer with RGBA values.
     let mut image = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(1000, 60);
 
     // Load the font
-    let font_data = include_bytes!("../fonts/Roboto-Bold.ttf");
+    let font_data = include_bytes!("../fonts/Noto_Sans_SC/static/NotoSansSC-Bold.ttf");
     let font = Font::try_from_bytes(font_data as &[u8]).expect("Error constructing Font");
 
     // Specify the scale and positioning of the text.
@@ -165,8 +204,25 @@ fn generate_icon(pair: &str, text: &str, percent: &str) -> Result<(), Box<dyn st
         println!("{}", cursor_x);
     }
 
+    const BLUE_COLOR: image::Rgba<u8> = Rgba([22, 199, 132, 255]);
+    const RED_COLOR: image::Rgba<u8> = Rgba([255, 0, 0, 255]);
+    let mut font_color;
+
+    if market_type == "crypto" {
+        if is_negetive(percent) {
+            font_color = RED_COLOR;
+        } else {
+            font_color = BLUE_COLOR;
+        }
+    } else {
+        if is_negetive(percent) {
+            font_color = BLUE_COLOR;
+        } else {
+            font_color = RED_COLOR;
+        }
+    }
     //let text2 = "+1.5%(1d)";
-    let mut font_color = Rgba([22, 199, 132, 255]);
+    //let mut font_color = Rgba([22, 199, 132, 255]);
 
     if is_negetive(percent) {
         //rgb(22, 199, 132)
@@ -217,6 +273,13 @@ fn generate_icon(pair: &str, text: &str, percent: &str) -> Result<(), Box<dyn st
     Ok(())
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct JsonConfig {
+    #[serde(rename = "type")]
+    type_field: String,
+    value: String,
+}
+
 async fn render(
     app_handle: &AppHandle,
     tray_handle: &SystemTrayHandle,
@@ -229,24 +292,41 @@ async fn render(
         //let r = store.get("pair");
 
         let r = store
-            .get("pair")
+            .get("config")
             .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::BrokenPipe, "12"))?;
 
         if let Some(val) = r.as_str() {
-            return Ok(val.to_string());
+            let cfg: JsonConfig = serde_json::from_str(val)?;
+            return Ok(cfg);
         }
 
-        return Ok("BTC/USDT".to_string());
+        return Ok(JsonConfig {
+            type_field: "crypto".to_string(),
+            value: "BTC/USDT".to_string(),
+        });
     });
-    let pair = result?;
-    println!("{}", pair);
 
-    let ticker = get_coin_price(&pair).await?;
-    let _ = generate_icon(
-        &pair,
-        &format_price(&pair, ticker.last),
-        &format_percent(ticker.percent_change),
-    );
+    println!("{:?}", result);
+
+    let config = result?;
+    let ticker;
+    if config.type_field == "crypto".to_string() {
+        ticker = get_coin_price(&config.value).await?;
+        let _ = generate_icon(
+            &config.type_field,
+            &config.value,
+            &format_price(&config.value, ticker.last),
+            &format_percent(ticker.percent_change),
+        );
+    } else {
+        ticker = get_china_price(&config.value).await?;
+        let _ = generate_icon(
+            &config.type_field,
+            &config.value,
+            &format_price2(&config.value, ticker.last),
+            &format_percent(ticker.percent_change),
+        );
+    }
 
     let mut path = get_app_data_path()
         .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::BrokenPipe, "13"))?;

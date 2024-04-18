@@ -7,6 +7,9 @@ import { appWindow } from "@tauri-apps/api/window";
 
 import { Select, SelectItem } from "@nextui-org/react";
 
+import { Tabs, Tab, Card, CardBody, CardHeader } from "@nextui-org/react";
+import { event } from "@tauri-apps/api";
+
 async function fetchSetting(key: string) {
   const value = await invoke("get_setting", { key });
   return value;
@@ -44,14 +47,28 @@ function App() {
   // 组件状态，用于跟踪选中的交易对
   const [selectedPair, setSelectedPair] = useState("");
 
+  const [selected, setSelected] = useState("crypto");
+
+  const [selectedPair2, setSelectedPair2] = useState("000001.SH");
+
   useEffect(() => {
     // 这里的代码会在组件首次渲染后执行
     console.log("组件已挂载");
 
     const fetchData = async () => {
-      const response = (await fetchSetting("pair")) as string;
+      const response = (await fetchSetting("config")) as string;
       console.log(`fetchData ${response}`);
-      setSelectedPair(response.toString());
+      try {
+        const config = JSON.parse(response);
+        setSelected(config["type"]);
+        if (config["type"] == "crypto") {
+          setSelectedPair(config["value"]);
+        } else {
+          setSelectedPair2(config["value"]);
+        }
+      } catch (err) {
+        console.log(err);
+      }
     };
     fetchData();
     // 如果需要，可以在这里返回一个清理函数
@@ -68,11 +85,22 @@ function App() {
     setSelectedPair(event.target.value);
   };
 
+  const handlePairChange2 = (event: any) => {
+    console.log(event);
+    console.log("handlePairChange2");
+    setSelectedPair2(event.target.value);
+  };
+
   // 处理表单提交的事件
   const handleSubmit = async (event: any) => {
     event.preventDefault(); // 阻止表单默认提交行为
     console.log(`你选择的交易对是: ${selectedPair}`);
-    await updateSetting("pair", selectedPair);
+
+    const data = {
+      type: selected,
+      value: selected == "crypto" ? selectedPair : selectedPair2,
+    };
+    await updateSetting("config", JSON.stringify(data));
   };
   const pairs = [
     { label: "BTC/USDT", value: "BTC/USDT" },
@@ -80,6 +108,8 @@ function App() {
     { label: "LTC/USDT", value: "LTC/USDT" },
     { label: "BOME/USDT", value: "BOME/USDT" },
   ];
+
+  const stocks = [{ label: "上证指数", value: "000001.SH" }];
   const updateIntervals = [
     { label: "Price updates", value: "Every 5 seconds" },
     //{ label: "News updates", value: "Every 5 minutes" },
@@ -95,20 +125,52 @@ function App() {
         </section>
 
         <div className="flex flex-col justify-center px-4 py-3.5 max-w-full text-base leading-6 text-white bg-gray-900 w-[512px]">
-          <Select
-            label="Watch Pair"
-            variant="bordered"
-            placeholder="Select Pair"
-            selectedKeys={[selectedPair]}
-            className="max-w-xs"
-            onChange={handlePairChange}
+          <Tabs
+            aria-label="Options"
+            selectedKey={selected}
+            onSelectionChange={setSelected}
           >
-            {pairs.map((pair) => (
-              <SelectItem key={pair.value} value={pair.value}>
-                {pair.label}
-              </SelectItem>
-            ))}
-          </Select>
+            <Tab key="crypto" title="Web3 Crypto">
+              <Card>
+                <CardBody>
+                  <Select
+                    label="Watch Pair"
+                    variant="bordered"
+                    placeholder="Select Pair"
+                    selectedKeys={[selectedPair]}
+                    className="max-w-xs"
+                    onChange={handlePairChange}
+                  >
+                    {pairs.map((pair) => (
+                      <SelectItem key={pair.value} value={pair.value}>
+                        {pair.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </CardBody>
+              </Card>
+            </Tab>
+            <Tab key="china" title="China">
+              <Card>
+                <CardBody>
+                  <Select
+                    label="Watch Stock"
+                    variant="bordered"
+                    placeholder="Select Pair"
+                    selectedKeys={[selectedPair2]}
+                    className="max-w-xs"
+                    onChange={handlePairChange2}
+                  >
+                    {stocks.map((pair) => (
+                      <SelectItem key={pair.value} value={pair.value}>
+                        {pair.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </CardBody>
+              </Card>
+            </Tab>
+          </Tabs>
         </div>
 
         <section className="mt-4 text-lg font-bold tracking-tight text-white">
