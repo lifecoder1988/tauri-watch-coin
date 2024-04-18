@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://nextui.org">
       <img width="20%" src="https://raw.githubusercontent.com/lifecoder1988/tauri-watch-coin/main/src-tauri/icons/128x128%402x.png" alt="watch-coin" />
-      <h1 align="center">Tauri Watch Coin</h1>
+      <h1 align="center">Tauri Watch Coin / China Stock </h1>
   </a>
 </p>
 </br>
