@@ -138,28 +138,31 @@ async fn get_china_price(pair: &str) -> Result<Ticker, Box<dyn std::error::Error
         pair
     );*/
 
-    let client = reqwest::Client::builder()
-        .build()?;
+    let client = reqwest::Client::builder().build()?;
 
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert("Referer", "https://finance.sina.com.cn".parse()?);
 
-    let request = client.request(reqwest::Method::GET, format!("https://hq.sinajs.cn/list={}",pair))
+    let request = client
+        .request(
+            reqwest::Method::GET,
+            format!("https://hq.sinajs.cn/list={}", pair),
+        )
         .headers(headers);
 
     let response = request.send().await?;
     let data = response.text().await?;
 
     let parts: Vec<_> = data.split("=").collect();
-    let s = parts[1].to_string() ;
+    let s = parts[1].to_string();
     let s2 = s.replace("\"", "");
     let parts2: Vec<_> = s2.split(",").collect();
-    println!("{:?}",parts2);
-    let last : f64 = parts2[3].parse().unwrap() ;
-    let yestorday : f64 = parts2[2].parse().unwrap() ;
+    println!("{:?}", parts2);
+    let last: f64 = parts2[3].parse().unwrap();
+    let yestorday: f64 = parts2[2].parse().unwrap();
     return Ok(Ticker {
-        last : last,
-        percent_change : (last - yestorday ) * 100.0 / yestorday 
+        last: last,
+        percent_change: (last - yestorday) * 100.0 / yestorday,
     });
     // 解析JSON响应
     /*let v: Value = response.json().await?;
@@ -250,10 +253,6 @@ fn generate_icon(
     //let text2 = "+1.5%(1d)";
     //let mut font_color = Rgba([22, 199, 132, 255]);
 
-    if is_negetive(percent) {
-        //rgb(22, 199, 132)
-        font_color = Rgba([255, 0, 0, 255]);
-    }
     let scale = Scale { x: 40.0, y: 40.0 };
 
     cursor_x += 30.0;
