@@ -54,6 +54,60 @@ $ yarn tauri build
 
 ```
 
+### Config
+
+```
+$ cd /Users/${user}/Library/Application Support/com.moyu.kline // change ${user} by your own user
+
+$ // create app.conf.json
+
+$ // restart app
+
+```
+
+### default app.conf.json
+
+```json
+{
+  "pairs": [
+    {
+      "label": "BTC/USDT",
+      "value": "BTC/USDT"
+    },
+    {
+      "label": "ETH/USDT",
+      "value": "ETH/USDT"
+    },
+    {
+      "label": "LTC/USDT",
+      "value": "LTC/USDT"
+    },
+    {
+      "label": "BOME/USDT",
+      "value": "BOME/USDT"
+    }
+  ],
+  "stocks": [
+    {
+      "label": "上证指数",
+      "value": "sh000001"
+    },
+    {
+      "label": "沪深 300",
+      "value": "sh000300"
+    },
+    {
+      "label": "隆基绿能",
+      "value": "sh601012"
+    },
+    {
+      "label": "万科A",
+      "value": "sz000002"
+    }
+  ]
+}
+```
+
 ## OS Supported
 
 | OS      | Status             |
