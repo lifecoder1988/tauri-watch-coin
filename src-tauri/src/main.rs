@@ -68,6 +68,8 @@ struct BtcData {
 
 #[derive(Deserialize, Debug)]
 struct Ticker {
+    label: String,
+
     #[serde(deserialize_with = "string_to_f64")]
     last: f64, // 你可以根据API返回的内容调整字段
 
@@ -75,16 +77,12 @@ struct Ticker {
     percent_change: f64,
 }
 
-fn format_price2(pair: &str, price: f64) -> String {
+fn format_price2(label: &str, pair: &str, price: f64) -> String {
     let mut name = "";
-    if pair == "sh000001".to_string() {
-        name = "上证指数";
-    } else if pair == "sh000300".to_string() {
-        name = "沪深300";
-    } else if pair == "sh601012".to_string() {
-        name = "隆基绿能";
-    }
-    format!("{} {:>10}", name, format!("¥{:.2}", price))
+    println!("!!!!!!!!!!!1");
+    println!("{}", label);
+
+    format!("{} {:>10}", label, format!("¥{:.2}", price))
 }
 
 fn format_price(pair: &str, price: f64) -> String {
@@ -160,7 +158,10 @@ async fn get_china_price(pair: &str) -> Result<Ticker, Box<dyn std::error::Error
     println!("{:?}", parts2);
     let last: f64 = parts2[3].parse().unwrap();
     let yestorday: f64 = parts2[2].parse().unwrap();
+    let label = parts2[0].to_string();
+    println!("{}", label);
     return Ok(Ticker {
+        label: label,
         last: last,
         percent_change: (last - yestorday) * 100.0 / yestorday,
     });
@@ -348,7 +349,7 @@ async fn render(
         let _ = generate_icon(
             &config.type_field,
             &config.value,
-            &format_price2(&config.value, ticker.last),
+            &format_price2(&ticker.label, &config.value, ticker.last),
             &format_percent(ticker.percent_change),
         );
     }
