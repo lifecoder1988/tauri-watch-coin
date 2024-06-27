@@ -16,6 +16,21 @@
     },
     "allowlist": {
       "all": false,
+      "fs": {
+        "readFile": true,
+        "scope": [
+          "*",
+          "$APP",
+          "$APP/*",
+          "$CACHE",
+          "$CACHE/*",
+          "$CONFIG",
+          "$CONFIG/*",
+          "$LOG",
+          "$LOG/*",
+          "$HOME/*"
+        ]
+      },
       "window": {
         "hide": true
       },

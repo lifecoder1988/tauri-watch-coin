@@ -9,6 +9,8 @@ import { Select, SelectItem } from "@nextui-org/react";
 
 import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
 
+import { readTextFile, BaseDirectory } from "@tauri-apps/api/fs";
+
 async function fetchSetting(key: string) {
   const value = await invoke("get_setting", { key });
   return value;
@@ -50,11 +52,40 @@ function App() {
 
   const [selectedPair2, setSelectedPair2] = useState("");
 
+  const [pairs, setPairs] = useState([
+    { label: "BTC/USDT", value: "BTC/USDT" },
+    { label: "ETH/USDT", value: "ETH/USDT" },
+    { label: "LTC/USDT", value: "LTC/USDT" },
+    { label: "BOME/USDT", value: "BOME/USDT" },
+  ]);
+
+  const [stocks, setStocks] = useState([
+    { label: "上证指数", value: "sh000001" },
+    { label: "沪深300", value: "sh000300" },
+    { label: "隆基绿能", value: "sh601012" },
+  ]);
+
   useEffect(() => {
     // 这里的代码会在组件首次渲染后执行
     console.log("组件已挂载");
 
     const fetchData = async () => {
+      try {
+        const conf: any = await readTextFile("app.conf.json", {
+          dir: BaseDirectory.AppConfig,
+        });
+
+        const contents = JSON.parse(conf);
+        console.log(BaseDirectory.AppConfig);
+
+        setPairs(contents["pairs"]);
+        setStocks(contents["stocks"]);
+
+        console.log(stocks);
+      } catch (err) {
+        console.log(err);
+      }
+
       const response = (await fetchSetting("config")) as string;
       console.log(`fetchData ${response}`);
       try {
@@ -110,19 +141,7 @@ function App() {
     await updateSetting("config", JSON.stringify(data));
     console.log("submit success");
   };
-  const pairs = [
-    { label: "BTC/USDT", value: "BTC/USDT" },
-    { label: "ETH/USDT", value: "ETH/USDT" },
-    { label: "LTC/USDT", value: "LTC/USDT" },
-    { label: "BOME/USDT", value: "BOME/USDT" },
-  ];
 
-  //sh000300
-  const stocks = [
-    { label: "上证指数", value: "sh000001" },
-    { label: "沪深300", value: "sh000300" },
-    { label: "隆基绿能", value: "sh601012" },
-  ];
   const updateIntervals = [
     { label: "Price updates", value: "Every 5 seconds" },
     //{ label: "News updates", value: "Every 5 minutes" },
